@@ -21,15 +21,18 @@ namespace ConsoleImage
 
             var invertColor = false;
 
+            string animationSet = "fox_frames";
+            //string animationSet = "llama_frame";
+
             var frames = new List<Bitmap>();
-            foreach (var filename in Directory.GetFiles("llama_frame"))
+            foreach (var filename in Directory.GetFiles(animationSet))
             {
                 frames.Add((Bitmap)Bitmap.FromFile(filename));
             }
 
             while (true)
             {
-                for (int i = 0; i < frames.Count; i += 4)
+                for (int i = 0; i < frames.Count; i += 2)
                 {
                     Console.Clear();
                     DrawToWindow(frames[i], Console.WindowWidth, Console.WindowHeight, invertColor);
