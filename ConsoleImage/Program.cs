@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 
 namespace ConsoleImage
 {
@@ -18,37 +17,27 @@ namespace ConsoleImage
         {
             Console.SetWindowSize(100, 50);
             Console.SetBufferSize(100, 50);
+            Console.CursorVisible = false;
 
             var invertColor = false;
-            int windowWidth = 0;
-            int windowHeight = 0;
 
-            using (var stream = File.Open("image.gif", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            var frames = new List<Bitmap>();
+            foreach (var filename in Directory.GetFiles("llama_frame"))
             {
-                while (true)
-                {
-                    if (Console.WindowWidth != windowWidth ||
-                        Console.WindowHeight != windowHeight)
-                    {
-                        var decoder = new GifBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.Default);
-
-                        for (int i = 0; i < decoder.Frames.Count; ++i)
-                        {
-                            var frame = decoder.Frames[i];
-                            frame.CopyPixels()
-
-
-                            Console.Clear();
-                            DrawToWindow(bitmap, Console.WindowWidth, Console.WindowHeight, invertColor);
-                        }
-
-                        windowWidth = Console.WindowWidth;
-                        windowHeight = Console.WindowHeight;
-                    }
-
-                    Thread.Sleep(50);
-                }
+                frames.Add((Bitmap)Bitmap.FromFile(filename));
             }
+
+            while (true)
+            {
+                for (int i = 0; i < frames.Count; i += 4)
+                {
+                    Console.Clear();
+                    DrawToWindow(frames[i], Console.WindowWidth, Console.WindowHeight, invertColor);
+                }
+
+                Thread.Sleep(50);
+            }
+
         }
 
         static void DrawToWindow(Bitmap bitmap, int width, int height, bool invertColors)
@@ -65,8 +54,17 @@ namespace ConsoleImage
                         {
                             var pixel = Marshal.ReadInt32(bitmapData.Scan0, y * bitmapData.Stride + x * 4);
                             Console.SetCursorPosition(x, y);
-                            Console.BackgroundColor = MapPixelToConsoleColor(pixel, invertColors);
-                            Console.Write(" ");
+
+                            if (true)
+                            {
+                                Console.ForegroundColor= MapPixelToConsoleColor(pixel, invertColors);
+                                Console.Write("*");
+                            }
+                            else
+                            {
+                                Console.BackgroundColor = MapPixelToConsoleColor(pixel, invertColors);
+                                Console.Write(" ");
+                            }
                         }
                     }
                 }
