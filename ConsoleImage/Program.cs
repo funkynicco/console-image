@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -19,19 +20,28 @@ namespace ConsoleImage
             Console.SetBufferSize(100, 50);
 
             var invertColor = false;
+            int windowWidth = 0;
+            int windowHeight = 0;
 
-            using (var bitmap = (Bitmap)Bitmap.FromFile("image.bmp"))
+            using (var stream = File.Open("image.gif", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                int windowWidth = 0;
-                int windowHeight = 0;
-
                 while (true)
                 {
                     if (Console.WindowWidth != windowWidth ||
                         Console.WindowHeight != windowHeight)
                     {
-                        Console.Clear();
-                        DrawToWindow(bitmap, Console.WindowWidth, Console.WindowHeight, invertColor);
+                        var decoder = new GifBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.Default);
+
+                        for (int i = 0; i < decoder.Frames.Count; ++i)
+                        {
+                            var frame = decoder.Frames[i];
+                            frame.CopyPixels()
+
+
+                            Console.Clear();
+                            DrawToWindow(bitmap, Console.WindowWidth, Console.WindowHeight, invertColor);
+                        }
+
                         windowWidth = Console.WindowWidth;
                         windowHeight = Console.WindowHeight;
                     }
